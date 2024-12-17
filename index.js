@@ -27,22 +27,32 @@ function getPeca(apresentacao) {
   return pecas[apresentacao.id];
 }
 
+function calcularCredito(apresentacao) {
+  let creditos = 0;
+  creditos += Math.max(apresentacao.audiencia - 30, 0);
+  if (getPeca(apresentacao).tipo === "comedia") 
+     creditos += Math.floor(apresentacao.audiencia / 5);
+  return creditos;   
+}
+
+function formatarMoeda(valor){
+  return new Intl.NumberFormat("pt-BR",
+    { style: "currency", currency: "BRL",
+      minimumFractionDigits: 2 }).format(valor/100);
+}
+
+
 function gerarFaturaStr (fatura, pecas) {
     let totalFatura = 0;
     let creditos = 0;
     let faturaStr = `Fatura ${fatura.cliente}\n`;
-    const formato = new Intl.NumberFormat("pt-BR",
-                          { style: "currency", currency: "BRL",
-                            minimumFractionDigits: 2 }).format;
+    const formato = formatarMoeda(totalFatura);
   
     for (let apre of fatura.apresentacoes) {
 
       const total = calcularTotalApresentacao(apre);
-  
-      // créditos para próximas contratações
-      creditos += Math.max(apre.audiencia - 30, 0);
-      if (getPeca(apre).tipo === "comedia") 
-         creditos += Math.floor(apre.audiencia / 5);
+
+      creditos = calcularCredito(apre);
   
       // mais uma linha da fatura
       faturaStr += `  ${getPeca(apre).nome}: ${formato(total/100)} (${apre.audiencia} assentos)\n`;
